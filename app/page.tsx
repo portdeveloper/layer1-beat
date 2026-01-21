@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useChainStatuses } from "@/hooks/use-chain-status";
 import { StatusIndicator, SourceIndicator } from "@/components/status-indicator";
 
@@ -33,6 +34,28 @@ const SOURCE_NAMES: Record<string, { primary: string; secondary: string; tertiar
 
 export default function Dashboard() {
   const { chains, timestamp, isLoading, isError } = useChainStatuses();
+  const [isPolling, setIsPolling] = useState(false);
+
+  // Auto-trigger polling if data is empty or unknown
+  useEffect(() => {
+    const needsPolling = chains.length > 0 && chains.every((c) => c.status === "unknown");
+
+    if (needsPolling && !isPolling && !isLoading) {
+      setIsPolling(true);
+      fetch("/api/internal/poll", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("Poll triggered:", data);
+          // Data will auto-refresh via SWR
+        })
+        .catch((err) => {
+          console.error("Poll failed:", err);
+        })
+        .finally(() => {
+          setIsPolling(false);
+        });
+    }
+  }, [chains, isPolling, isLoading]);
 
   const healthyCount = chains.filter((c) => c.status === "healthy").length;
   const issueCount = chains.filter(
