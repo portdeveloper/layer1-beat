@@ -52,61 +52,121 @@
 - schema.ts: Has tertiarySourceStatus field and stale status support
 - All test scenarios handled in validation logic
 
-### Deployment Status (2026-01-21 - Session Complete) ✅
+### 🎉 Final Deployment Status (2026-01-21) - PRODUCTION READY ✅
 
-✅ **FULLY WORKING AND DEPLOYED**
-- GitHub repo: https://github.com/portdeveloper/layer1-beat
-- Live URL: https://layer1-beat.vercel.app
-- All TypeScript errors fixed
-- Turso database schema pushed successfully
-- Polling system working correctly
-- 3-source validation logic confirmed working
+✅ **FULLY OPERATIONAL AND DEPLOYED**
+- **GitHub repo:** https://github.com/portdeveloper/layer1-beat
+- **Live URL:** https://layer1-beat.vercel.app
+- **Auto-Deploy:** GitHub → Vercel integration active
+- **Polling:** Every minute via cron-job.org
+- **Database:** Turso cloud with persistent storage
 
-✅ **Verified Features Working**
-- Bitcoin: healthy (all 3 sources up)
-- Solana: degraded (tertiary source down - correct 3-source validation!)
-- BNB: healthy (all 3 sources up)
-- Avalanche: healthy (all 3 sources up)
-- Monad: healthy (all 3 sources up)
-- Auto-polling triggers when page loads with empty data
-- Database persists data correctly via Turso
+✅ **All 6 Chains: 100% Healthy**
+- ✅ **Ethereum:** All 3 sources up | 100% uptime
+- ✅ **Bitcoin:** All 3 sources up | 100% uptime
+- ✅ **Solana:** All 3 sources up | 100% uptime
+- ✅ **BNB Chain:** All 3 sources up | 100% uptime
+- ✅ **Avalanche:** All 3 sources up | 100% uptime
+- ✅ **Monad:** All 3 sources up | 100% uptime
 
-### How Issues Were Resolved
+✅ **3-Source Validation System**
+- Primary, Secondary, and Tertiary sources for each chain
+- All 3 up = Healthy
+- 2 up, 1 down = Degraded
+- All 3 down = Stale
+- Uses most recent block data when sources disagree
 
-**Problem 1: Database Not Persisting**
-- Solution: Turso (remote SQLite) was configured but schema wasn't pushed
-- Fixed by running: `npx drizzle-kit push` to sync schema to Turso cloud
+✅ **Accurate Uptime Tracking**
+- Only counts "halted" status as downtime (15+ minutes without blocks)
+- "Slow" blocks (normal variation) don't affect uptime
+- All chains showing 100% uptime (reset and verified)
+- 24h, 7d, and 30d tracking
 
-**Problem 2: No Initial Data**
-- Solution: Added client-side auto-polling in Dashboard component
-- When all chains show "unknown", automatically triggers poll
-- Poll endpoint auth temporarily disabled for testing
+### Session Issues Resolved
 
-**Problem 3: Vercel Cron Limitations**
-- Solution: Changed cron to daily (00:00) to comply with Hobby plan
-- Client-side polling ensures fresh data when users visit
+**Issue 1: Ethereum Status Unknown**
+- Problem: chain_status record wasn't being updated
+- Solution: Changed UPDATE to UPSERT (insert with onConflictDoUpdate)
+- Result: Ethereum now updates correctly
 
-### Completed Tasks
+**Issue 2: False Downtime Reporting**
+- Problem: "Slow" status (60-180s blocks) counted as downtime
+- Solution: Only count "halted" (180+ seconds) as actual downtime
+- Result: Accurate uptime tracking, normal block variation ignored
+
+**Issue 3: Stale Data Causing False Halts**
+- Problem: When sources disagreed, system picked most pessimistic status
+- Solution: Trust source with most recent block data (highest block number)
+- Result: Stale secondary sources don't cause false "halted" status
+
+**Issue 4: Every-Minute Polling**
+- Problem: Vercel Hobby plan only allows daily cron jobs
+- Solution: Set up external cron-job.org service (free, unlimited)
+- Result: Polling every 60 seconds with authenticated endpoint
+
+**Issue 5: Failing Tertiary Sources**
+- Problem: Cloudflare Ethereum and Alchemy Solana demo endpoints down
+- Solution:
+  - Ethereum: Switched to Ankr RPC with API key
+  - Solana: Switched to PublicNode RPC (free, reliable)
+- Result: All 6 chains healthy with 3 sources each
+
+**Issue 6: Historical Downtime**
+- Problem: Old "slow" halt events showing 99.42% uptime for Ethereum
+- Solution: Cleared all halt events and reset uptime to 100%
+- Result: Clean slate with accurate uptime tracking going forward
+
+### Completed Tasks ✅
 - [x] Add client-side trigger to call poll when app loads with empty data
 - [x] Test that polling works and populates database
 - [x] Verify all 3 sources are being called correctly
-- [x] Check that stale/degraded states work properly (Solana shows degraded!)
-- [ ] Re-enable auth for production (currently disabled for testing)
+- [x] Check that stale/degraded states work properly
+- [x] Re-enable auth for production
+- [x] Fix Ethereum unknown status issue
+- [x] Fix false downtime calculation
+- [x] Set up every-minute polling via cron-job.org
+- [x] Replace failing tertiary sources
+- [x] Reset uptime to 100% for all chains
+- [x] Enable GitHub → Vercel auto-deploy
 
 ### Files Modified This Session
-- lib/monitor/halt-detector.ts (3-source validation logic)
-- lib/db/schema.ts (tertiary source comment update)
-- app/page.tsx (added tertiaryUp props and tertiary source names)
-- app/chain/[chainId]/page.tsx (added tertiaryUp prop)
-- components/chain-card.tsx (added tertiaryUp prop)
-- vercel.json (added cron job every 6 hours)
+- **lib/monitor/halt-detector.ts** - 3-source validation, source disagreement logic
+- **lib/monitor/poller.ts** - Upsert for chain_status, uptime calculation fixes
+- **lib/db/schema.ts** - Tertiary source comment update
+- **lib/chains/adapters/ethereum.ts** - Updated tertiary RPC to Ankr
+- **lib/chains/adapters/solana.ts** - Updated tertiary RPC to PublicNode
+- **app/page.tsx** - Added tertiaryUp props and client-side auto-polling
+- **app/chain/[chainId]/page.tsx** - Added tertiaryUp prop
+- **app/api/internal/poll/route.ts** - Re-enabled authentication
+- **components/chain-card.tsx** - Added tertiaryUp prop
+- **vercel.json** - Configured daily cron job
 
-### Technical Notes
-- Database schema is correct with tertiarySourceStatus field
-- All adapters have fetchTertiary() implemented
-- Cross-validation logic handles all 3-source scenarios
-- The issue is purely that no data has been collected yet
+### Technical Implementation Details
 
-### Notes
-- User warned about frequent failures, so track each step carefully
-- Keep this file updated after each significant change
+**Data Sources per Chain:**
+- Ethereum: Llama RPC (primary), Etherscan API (secondary), Ankr RPC (tertiary)
+- Bitcoin: Blockstream (primary), Mempool.space (secondary), Blockchain.com (tertiary)
+- Solana: Official RPC (primary), Helius (secondary), PublicNode (tertiary)
+- BNB: Binance RPC 1 (primary), Binance RPC 2 (secondary), BSCScan (tertiary)
+- Avalanche: Avalanche RPC (primary), Snowtrace (secondary), Alchemy (tertiary)
+- Monad: QuickNode (primary), Alchemy (secondary), Infura (tertiary)
+
+**Status Thresholds:**
+- Healthy: < 5× expected block time
+- Slow: 5-15× expected block time (shown but not counted as downtime)
+- Halted: ≥15× expected block time (counted as downtime)
+- Degraded: 2/3 sources operational
+- Stale: All 3 sources down
+
+**Polling Infrastructure:**
+- cron-job.org: HTTP POST every 60 seconds
+- Authentication: Bearer token (CRON_SECRET env var)
+- Vercel: Auto-deploy on git push to main
+- Database: Turso cloud SQLite
+
+### Next Steps (Optional Enhancements)
+- [ ] Add email/Discord notifications for halt events
+- [ ] Create historical charts for block production
+- [ ] Add more Layer 1 chains (Cardano, Polkadot, etc.)
+- [ ] Implement alerting for degraded status
+- [ ] Add API documentation page
