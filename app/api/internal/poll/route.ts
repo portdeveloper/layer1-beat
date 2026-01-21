@@ -6,15 +6,14 @@ export const maxDuration = 60; // Allow up to 60 seconds for polling
 
 export async function POST(request: NextRequest) {
   try {
-    // Temporarily allow unauthenticated requests for initial data population
-    // TODO: Re-enable auth after initial setup
-    // const isDev = process.env.NODE_ENV === "development";
-    // const authHeader = request.headers.get("authorization");
-    // const cronSecret = process.env.CRON_SECRET;
+    // Verify cron secret for external cron services
+    const isDev = process.env.NODE_ENV === "development";
+    const authHeader = request.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
 
-    // if (!isDev && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    if (!isDev && cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const result = await runPollingCycle();
 
