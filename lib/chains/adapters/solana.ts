@@ -1,7 +1,7 @@
 import { ChainAdapter, SourceResult } from "../types";
 
 const SOLANA_RPC = "https://api.mainnet-beta.solana.com";
-const TERTIARY_RPC = "https://solana-mainnet.g.alchemy.com/v2/demo";
+const TERTIARY_RPC = "https://rpc.ankr.com/solana/3c1504db9f2d7292b8a63f447ae7443163a563b451054f11e5786264ef82e438";
 
 export class SolanaAdapter implements ChainAdapter {
   chainId = "solana";
