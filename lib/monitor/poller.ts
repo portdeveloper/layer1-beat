@@ -189,8 +189,10 @@ async function handleHaltEvents(result: PollResult, now: Date): Promise<void> {
     orderBy: desc(schema.haltEvents.startedAt),
   });
 
-  const isUnhealthy =
-    result.determinedStatus === "slow" || result.determinedStatus === "halted";
+  // Only count "halted" as downtime, not "slow"
+  // Slow means blocks are delayed but still producing (normal variation)
+  // Halted means no blocks for an extended period (actual downtime)
+  const isUnhealthy = result.determinedStatus === "halted";
 
   if (isUnhealthy && !openEvent) {
     // Create new halt event
