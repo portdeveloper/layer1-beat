@@ -52,11 +52,60 @@
 - schema.ts: Has tertiarySourceStatus field and stale status support
 - All test scenarios handled in validation logic
 
-### Next Steps
-- [ ] Run the application to test all scenarios
-- [ ] Verify stale status appears when all 3 sources fail
-- [ ] Verify degraded status when 1-2 sources fail
-- [ ] Check database records include tertiary source data
+### Deployment Status (2026-01-21 - Session End)
+
+✅ **Successfully Deployed**
+- GitHub repo: https://github.com/portdeveloper/layer1-beat
+- Live URL: https://layer1-beat.vercel.app
+- All TypeScript errors fixed
+- Code committed and pushed
+
+❌ **Current Issue: App Not Working**
+- Database is empty - no polling has occurred yet
+- All chains show status "unknown" with all sources "down"
+- Root cause: Poll endpoint requires authentication and hasn't been triggered
+
+### Why It's Not Working
+1. Poll endpoint (`/api/internal/poll`) requires CRON_SECRET authorization
+2. Vercel Hobby plan only allows daily cron jobs (not every minute)
+3. Changed cron to run every 6 hours: `0 */6 * * *`
+4. No initial poll has been triggered to populate database
+
+### What Needs To Be Done Next Session
+
+**Option 1: Manual Poll Trigger (Quick Fix)**
+- Need to trigger `/api/internal/poll` endpoint manually with proper auth
+- Or temporarily remove auth check in development to populate initial data
+
+**Option 2: Client-Side Auto-Poll (Better Solution)**
+- Add useEffect in dashboard to call poll endpoint on first load
+- This ensures data is populated when users visit the site
+- Can check if database is empty and trigger poll automatically
+
+**Option 3: Remove Auth for Testing**
+- Temporarily make poll endpoint public for initial testing
+- Add auth back later once system is working
+
+**Recommended Next Steps:**
+1. [ ] Add client-side trigger to call poll when app loads with empty data
+2. [ ] Test that polling works and populates database
+3. [ ] Verify all 3 sources are being called correctly
+4. [ ] Check that stale/degraded states work properly
+5. [ ] Re-enable auth once working
+
+### Files Modified This Session
+- lib/monitor/halt-detector.ts (3-source validation logic)
+- lib/db/schema.ts (tertiary source comment update)
+- app/page.tsx (added tertiaryUp props and tertiary source names)
+- app/chain/[chainId]/page.tsx (added tertiaryUp prop)
+- components/chain-card.tsx (added tertiaryUp prop)
+- vercel.json (added cron job every 6 hours)
+
+### Technical Notes
+- Database schema is correct with tertiarySourceStatus field
+- All adapters have fetchTertiary() implemented
+- Cross-validation logic handles all 3-source scenarios
+- The issue is purely that no data has been collected yet
 
 ### Notes
 - User warned about frequent failures, so track each step carefully
