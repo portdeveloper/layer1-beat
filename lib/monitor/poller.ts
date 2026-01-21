@@ -140,10 +140,11 @@ export async function updateDatabaseWithResults(
     const uptime7d = await calculateUptimeForPeriod(result.chainId, 7 * 24 * 60 * 60);
     const uptime30d = await calculateUptimeForPeriod(result.chainId, 30 * 24 * 60 * 60);
 
-    // Update chain status
+    // Update or insert chain status (upsert)
     await db
-      .update(schema.chainStatus)
-      .set({
+      .insert(schema.chainStatus)
+      .values({
+        chainId: result.chainId,
         status: result.determinedStatus,
         latestBlockNumber: result.blockData?.blockNumber ?? null,
         latestBlockTimestamp: result.blockData?.blockTimestamp ?? null,
@@ -156,7 +157,22 @@ export async function updateDatabaseWithResults(
         lastCheckedAt: now,
         updatedAt: now,
       })
-      .where(eq(schema.chainStatus.chainId, result.chainId));
+      .onConflictDoUpdate({
+        target: schema.chainStatus.chainId,
+        set: {
+          status: result.determinedStatus,
+          latestBlockNumber: result.blockData?.blockNumber ?? null,
+          latestBlockTimestamp: result.blockData?.blockTimestamp ?? null,
+          primarySourceStatus: result.primary.success ? "up" : "down",
+          secondarySourceStatus: result.secondary.success ? "up" : "down",
+          tertiarySourceStatus: result.tertiary.success ? "up" : "down",
+          uptimePercent24h: uptime24h,
+          uptimePercent7d: uptime7d,
+          uptimePercent30d: uptime30d,
+          lastCheckedAt: now,
+          updatedAt: now,
+        },
+      });
   }
 }
 
