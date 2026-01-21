@@ -126,17 +126,13 @@ export function crossValidateResults(
       };
     }
 
-    // Sources disagree - use more pessimistic status
-    const statusPriority: ChainStatusType[] = [
-      "halted",
-      "slow",
-      "degraded",
-      "healthy",
-    ];
-    const finalStatus =
-      statusPriority.indexOf(status1) < statusPriority.indexOf(status2)
-        ? status1
-        : status2;
+    // Sources disagree - trust the source with most recent data
+    // If one source has stale data, it might incorrectly report "halted"
+    // Use the status from whichever source has the higher block number
+    const source1Block = sources.find((s) => s.up)?.result.data?.blockNumber || 0;
+    const source2Block = sources.filter((s) => s.up)[1]?.result.data?.blockNumber || 0;
+
+    const finalStatus = source1Block >= source2Block ? status1 : status2;
 
     return {
       status: finalStatus,
