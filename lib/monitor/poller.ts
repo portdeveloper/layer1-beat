@@ -236,18 +236,21 @@ async function calculateUptimeForPeriod(
   const now = new Date();
   const periodStart = new Date(now.getTime() - periodSeconds * 1000);
 
-  // Get all halt events that overlap with this period
+  // Get all HALTED events that overlap with this period
+  // Only count "halted" events as downtime, not "slow" events
   const haltEvents = await db.query.haltEvents.findMany({
     where: and(
       eq(schema.haltEvents.chainId, chainId),
+      eq(schema.haltEvents.severity, "halted"),
       gte(schema.haltEvents.startedAt, periodStart)
     ),
   });
 
-  // Also check for events that started before the period but haven't ended
+  // Also check for ongoing halted events that started before the period
   const ongoingEvents = await db.query.haltEvents.findMany({
     where: and(
       eq(schema.haltEvents.chainId, chainId),
+      eq(schema.haltEvents.severity, "halted"),
       isNull(schema.haltEvents.endedAt)
     ),
   });
