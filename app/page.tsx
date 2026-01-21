@@ -1,65 +1,174 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useChainStatuses } from "@/hooks/use-chain-status";
+import { StatusIndicator, SourceIndicator } from "@/components/status-indicator";
+
+function formatTimeSince(seconds: number | null): string {
+  if (seconds === null) return "-";
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+  return `${Math.floor(seconds / 86400)}d`;
+}
+
+function formatBlockNumber(num: number | null): string {
+  if (num === null) return "-";
+  return num.toLocaleString();
+}
+
+function formatUptime(percent: number | null): string {
+  if (percent === null) return "-";
+  return `${percent.toFixed(2)}%`;
+}
+
+const SOURCE_NAMES: Record<string, { primary: string; secondary: string }> = {
+  ethereum: { primary: "Llama RPC", secondary: "Etherscan" },
+  bitcoin: { primary: "Blockstream", secondary: "Mempool.space" },
+  solana: { primary: "Solana RPC", secondary: "Helius" },
+  bnb: { primary: "Binance RPC", secondary: "Binance RPC 2" },
+  avalanche: { primary: "Avalanche RPC", secondary: "Snowtrace" },
+  monad: { primary: "QuickNode", secondary: "Alchemy" },
+};
+
+export default function Dashboard() {
+  const { chains, timestamp, isLoading, isError } = useChainStatuses();
+
+  const healthyCount = chains.filter((c) => c.status === "healthy").length;
+  const issueCount = chains.filter(
+    (c) => c.status === "slow" || c.status === "halted"
+  ).length;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-1">L1Beat</h1>
+            <p className="text-gray-400 text-sm">
+              Real-time uptime monitoring for top Layer 1 blockchains
+            </p>
+          </div>
+          <div className="text-right text-sm text-gray-500">
+            <div className="flex items-center gap-4">
+              <span className="text-green-400">{healthyCount} healthy</span>
+              {issueCount > 0 && (
+                <span className="text-red-400">{issueCount} issues</span>
+              )}
+            </div>
+            <div className="text-xs mt-1">
+              {timestamp
+                ? `Updated ${new Date(timestamp).toLocaleTimeString()}`
+                : "Loading..."}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Loading State */}
+        {isLoading && chains.length === 0 && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin w-8 h-8 border-2 border-gray-600 border-t-white rounded-full mb-4" />
+            <p className="text-gray-500">Loading chain statuses...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {isError && (
+          <div className="text-center py-12">
+            <div className="text-red-500 mb-2">Failed to load chain data</div>
+            <p className="text-gray-500 text-sm">
+              Make sure the polling service is running
+            </p>
+          </div>
+        )}
+
+        {/* Chain Table */}
+        {chains.length > 0 && (
+          <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-800 text-left text-sm text-gray-500">
+                  <th className="px-4 py-3 font-medium">Chain</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium text-right">Block</th>
+                  <th className="px-4 py-3 font-medium text-right">Last Block</th>
+                  <th className="px-4 py-3 font-medium text-right">24h</th>
+                  <th className="px-4 py-3 font-medium text-right">7d</th>
+                  <th className="px-4 py-3 font-medium text-center">Sources</th>
+                </tr>
+              </thead>
+              <tbody>
+                {chains.map((chain) => (
+                  <tr
+                    key={chain.chainId}
+                    className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                  >
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/chain/${chain.chainId}`}
+                        className="font-medium text-white hover:text-blue-400 transition-colors"
+                      >
+                        {chain.name}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusIndicator status={chain.status} size="sm" showLabel />
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-gray-300 text-sm">
+                      {formatBlockNumber(chain.latestBlockNumber)}
+                    </td>
+                    <td className="px-4 py-3 text-right text-gray-400 text-sm">
+                      {formatTimeSince(chain.timeSinceLastBlock)} ago
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      <span
+                        className={
+                          chain.uptimePercent24h !== null && chain.uptimePercent24h >= 99
+                            ? "text-green-400"
+                            : chain.uptimePercent24h !== null && chain.uptimePercent24h >= 95
+                            ? "text-yellow-400"
+                            : "text-red-400"
+                        }
+                      >
+                        {formatUptime(chain.uptimePercent24h)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      <span
+                        className={
+                          chain.uptimePercent7d !== null && chain.uptimePercent7d >= 99
+                            ? "text-green-400"
+                            : chain.uptimePercent7d !== null && chain.uptimePercent7d >= 95
+                            ? "text-yellow-400"
+                            : "text-red-400"
+                        }
+                      >
+                        {formatUptime(chain.uptimePercent7d)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-center">
+                        <SourceIndicator
+                          primaryUp={chain.primarySourceStatus === "up"}
+                          secondaryUp={chain.secondarySourceStatus === "up"}
+                          primaryName={SOURCE_NAMES[chain.chainId]?.primary}
+                          secondaryName={SOURCE_NAMES[chain.chainId]?.secondary}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-xs text-gray-600">
+          Data refreshes every 10 seconds. Dual-source verification.
         </div>
-      </main>
+      </div>
     </div>
   );
 }
