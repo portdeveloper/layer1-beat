@@ -3,7 +3,7 @@ import { ChainAdapter, SourceResult } from "../types";
 const RPC_URL = "https://eth.llamarpc.com";
 const ETHERSCAN_API = "https://api.etherscan.io/v2/api";
 const CHAIN_ID = 1;
-const TERTIARY_RPC_URL = "https://cloudflare-eth.com";
+const TERTIARY_RPC_URL = "https://rpc.ankr.com/eth/3c1504db9f2d7292b8a63f447ae7443163a563b451054f11e5786264ef82e438";
 
 export class EthereumAdapter implements ChainAdapter {
   chainId = "ethereum";
