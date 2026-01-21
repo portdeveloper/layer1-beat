@@ -100,6 +100,7 @@ export default function ChainDetailPage({
               <SourceIndicator
                 primaryUp={chain.primarySourceStatus === "up"}
                 secondaryUp={chain.secondarySourceStatus === "up"}
+                tertiaryUp={chain.tertiarySourceStatus === "up"}
               />
             </div>
             <div className="text-sm text-gray-500 mt-1">Data Sources</div>

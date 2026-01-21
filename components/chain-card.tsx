@@ -71,6 +71,7 @@ export function ChainCard({ chain }: ChainCardProps) {
             <SourceIndicator
               primaryUp={chain.primarySourceStatus === "up"}
               secondaryUp={chain.secondarySourceStatus === "up"}
+              tertiaryUp={chain.tertiarySourceStatus === "up"}
             />
           </div>
         </div>
