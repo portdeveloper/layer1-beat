@@ -193,11 +193,13 @@ export default function ChainDetailPage({
                         <span
                           className={`px-2 py-0.5 rounded text-xs ${
                             snapshot.source === "primary"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : "bg-purple-500/20 text-purple-400"
+                              ? "bg-green-500/20 text-green-400"
+                              : snapshot.source === "secondary"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-green-500/20 text-green-400"
                           }`}
                         >
-                          {snapshot.source}
+                          {snapshot.source === "primary" ? "1" : snapshot.source === "secondary" ? "2" : "3"}
                         </span>
                       </td>
                       <td className="py-2 text-gray-500">
