@@ -35,7 +35,6 @@ function formatDate(dateStr: string): string {
 export function UptimeChart({ haltEvents, periodDays = 30 }: UptimeChartProps) {
   const now = new Date();
   const periodStart = new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000);
-  const totalMs = periodDays * 24 * 60 * 60 * 1000;
 
   // Filter events within the period
   const relevantEvents = haltEvents.filter((e) => {
@@ -43,43 +42,62 @@ export function UptimeChart({ haltEvents, periodDays = 30 }: UptimeChartProps) {
     return eventEnd >= periodStart;
   });
 
+  // Create 30 blocks representing each day
+  const blocks = Array.from({ length: 30 }, (_, i) => {
+    const dayStart = new Date(periodStart.getTime() + i * 24 * 60 * 60 * 1000);
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+
+    // Check if any events occurred during this day
+    let status: "healthy" | "slow" | "halted" = "healthy";
+
+    for (const event of relevantEvents) {
+      const eventStart = new Date(event.startedAt);
+      const eventEnd = event.endedAt ? new Date(event.endedAt) : now;
+
+      // Check if event overlaps with this day
+      if (eventStart < dayEnd && eventEnd > dayStart) {
+        // Prioritize halted over slow
+        if (event.severity === "halted") {
+          status = "halted";
+          break; // Halted is highest priority, stop checking
+        } else if (event.severity === "slow" && status !== "halted") {
+          status = "slow";
+        }
+      }
+    }
+
+    return {
+      date: dayStart,
+      status,
+    };
+  });
+
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-white mb-4">
+    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 sm:p-6">
+      <h3 className="text-lg sm:text-xl font-semibold text-white mb-6">
         Uptime History ({periodDays} days)
       </h3>
 
-      {/* Visual timeline */}
-      <div className="relative h-8 bg-green-900/30 rounded overflow-hidden mb-4">
-        {relevantEvents.map((event) => {
-          const eventStart = new Date(event.startedAt);
-          const eventEnd = event.endedAt ? new Date(event.endedAt) : now;
-
-          // Calculate position and width as percentage
-          const startOffset = Math.max(
-            0,
-            (eventStart.getTime() - periodStart.getTime()) / totalMs
-          );
-          const endOffset = Math.min(
-            1,
-            (eventEnd.getTime() - periodStart.getTime()) / totalMs
-          );
-          const width = endOffset - startOffset;
-
-          if (width <= 0) return null;
-
+      {/* 30 Day Blocks */}
+      <div className="flex gap-1.5 mb-6 flex-wrap sm:flex-nowrap">
+        {blocks.map((block, i) => {
           const bgColor =
-            event.severity === "halted" ? "bg-red-500" : "bg-yellow-500";
+            block.status === "halted"
+              ? "bg-red-500"
+              : block.status === "slow"
+              ? "bg-yellow-500"
+              : "bg-green-500";
+
+          const dateStr = block.date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
 
           return (
             <div
-              key={event.id}
-              className={`absolute top-0 bottom-0 ${bgColor} opacity-80`}
-              style={{
-                left: `${startOffset * 100}%`,
-                width: `${width * 100}%`,
-              }}
-              title={`${event.severity}: ${formatDate(event.startedAt)}`}
+              key={i}
+              className={`flex-1 min-w-[8px] h-12 ${bgColor} rounded-sm transition-all hover:opacity-80 cursor-pointer`}
+              title={`${dateStr}: ${block.status}`}
             />
           );
         })}
