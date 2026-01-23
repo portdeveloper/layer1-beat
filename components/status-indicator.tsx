@@ -120,6 +120,39 @@ function SourceBadge({
   );
 }
 
+function WSSBadge({
+  isUp,
+  name,
+  inactive = true,
+}: {
+  isUp: boolean;
+  name?: string;
+  inactive?: boolean;
+}) {
+  return (
+    <div className="relative group/badge">
+      <span
+        className={`inline-flex items-center justify-center px-1.5 h-5 rounded text-[9px] font-bold cursor-default ${
+          inactive
+            ? "bg-gray-500/10 text-gray-500 border border-gray-500/20"
+            : isUp
+            ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+            : "bg-red-500/20 text-red-400 border border-red-500/30"
+        }`}
+      >
+        WSS
+      </span>
+      {/* Individual tooltip */}
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs whitespace-nowrap opacity-0 invisible group-hover/badge:opacity-100 group-hover/badge:visible transition-all z-10 shadow-lg">
+        <span className={inactive ? "text-gray-500" : isUp ? "text-blue-400" : "text-red-400"}>
+          {name || (inactive ? "WebSocket (Coming soon)" : "WebSocket")}
+        </span>
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-700" />
+      </div>
+    </div>
+  );
+}
+
 export function SourceIndicator({
   primaryUp,
   secondaryUp,
@@ -127,6 +160,8 @@ export function SourceIndicator({
   primaryName,
   secondaryName,
   tertiaryName,
+  wssUp = false,
+  wssName,
 }: {
   primaryUp: boolean;
   secondaryUp: boolean;
@@ -134,9 +169,12 @@ export function SourceIndicator({
   primaryName?: string;
   secondaryName?: string;
   tertiaryName?: string;
+  wssUp?: boolean;
+  wssName?: string;
 }) {
   return (
     <div className="flex items-center gap-1.5">
+      <WSSBadge isUp={wssUp} name={wssName} inactive={true} />
       <SourceBadge number={1} isUp={primaryUp} name={primaryName} />
       <SourceBadge number={2} isUp={secondaryUp} name={secondaryName} />
       <SourceBadge number={3} isUp={tertiaryUp} name={tertiaryName} />
