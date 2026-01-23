@@ -26,7 +26,7 @@ function formatUptime(percent: number | null): string {
 const SOURCE_NAMES: Record<string, { primary: string; secondary: string; tertiary: string }> = {
   ethereum: { primary: "Llama RPC", secondary: "Etherscan", tertiary: "Alchemy" },
   bitcoin: { primary: "Blockstream", secondary: "Mempool.space", tertiary: "Blockchain.com" },
-  solana: { primary: "Solana RPC", secondary: "Helius", tertiary: "QuickNode" },
+  solana: { primary: "Solana RPC", secondary: "Helius", tertiary: "PublicNode" },
   bnb: { primary: "Binance RPC", secondary: "Binance RPC 2", tertiary: "BSCScan" },
   avalanche: { primary: "Avalanche RPC", secondary: "Snowtrace", tertiary: "Alchemy" },
   monad: { primary: "QuickNode", secondary: "Alchemy", tertiary: "Infura" },
@@ -64,42 +64,39 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">L1Beat</h1>
-            <p className="text-gray-400 text-sm">
-              Real-time uptime monitoring for top Layer 1 blockchains
-            </p>
-          </div>
-          <div className="text-right text-sm text-gray-500">
-            <div className="flex items-center gap-4">
-              <span className="text-green-400">{healthyCount} healthy</span>
-              {issueCount > 0 && (
-                <span className="text-red-400">{issueCount} issues</span>
-              )}
-            </div>
-            <div className="text-xs mt-1">
+        <div className="mb-12 sm:mb-16">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-4 tracking-tight leading-tight">L1Beat</h1>
+          <p className="text-gray-400 text-base sm:text-lg mb-6 leading-relaxed">
+            Real-time uptime monitoring for Layer 1 blockchains
+          </p>
+          <div className="flex flex-wrap items-center gap-4 sm:gap-5 text-sm sm:text-base">
+            <span className="text-green-400 font-medium">{healthyCount} healthy</span>
+            {issueCount > 0 && (
+              <span className="text-red-400 font-medium">{issueCount} issues</span>
+            )}
+            <span className="hidden sm:inline text-gray-600">•</span>
+            <span className="text-sm text-gray-500">
               {timestamp
                 ? `Updated ${new Date(timestamp).toLocaleTimeString()}`
                 : "Loading..."}
-            </div>
+            </span>
           </div>
         </div>
 
         {/* Loading State */}
         {isLoading && chains.length === 0 && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin w-8 h-8 border-2 border-gray-600 border-t-white rounded-full mb-4" />
+          <div className="text-center py-16 sm:py-24">
+            <div className="inline-block animate-spin w-10 h-10 border-2 border-gray-700 border-t-white rounded-full mb-4" />
             <p className="text-gray-500">Loading chain statuses...</p>
           </div>
         )}
 
         {/* Error State */}
         {isError && (
-          <div className="text-center py-12">
-            <div className="text-red-500 mb-2">Failed to load chain data</div>
+          <div className="text-center py-16 sm:py-24">
+            <div className="text-red-500 mb-2 text-lg">Failed to load chain data</div>
             <p className="text-gray-500 text-sm">
               Make sure the polling service is running
             </p>
@@ -108,90 +105,92 @@ export default function Dashboard() {
 
         {/* Chain Table */}
         {chains.length > 0 && (
-          <div className="bg-gray-900 border border-gray-800 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-800 text-left text-sm text-gray-500">
-                  <th className="px-4 py-3 font-medium">Chain</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium text-right">Block</th>
-                  <th className="px-4 py-3 font-medium text-right">Last Block</th>
-                  <th className="px-4 py-3 font-medium text-right">24h</th>
-                  <th className="px-4 py-3 font-medium text-right">7d</th>
-                  <th className="px-4 py-3 font-medium text-center">Sources</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chains.map((chain) => (
-                  <tr
-                    key={chain.chainId}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
-                  >
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/chain/${chain.chainId}`}
-                        className="font-medium text-white hover:text-blue-400 transition-colors"
-                      >
-                        {chain.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusIndicator status={chain.status} size="sm" showLabel />
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono text-gray-300 text-sm">
-                      {formatBlockNumber(chain.latestBlockNumber)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-400 text-sm">
-                      {formatTimeSince(chain.timeSinceLastBlock)} ago
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      <span
-                        className={
-                          chain.uptimePercent24h !== null && chain.uptimePercent24h >= 99
-                            ? "text-green-400"
-                            : chain.uptimePercent24h !== null && chain.uptimePercent24h >= 95
-                            ? "text-yellow-400"
-                            : "text-red-400"
-                        }
-                      >
-                        {formatUptime(chain.uptimePercent24h)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right text-sm">
-                      <span
-                        className={
-                          chain.uptimePercent7d !== null && chain.uptimePercent7d >= 99
-                            ? "text-green-400"
-                            : chain.uptimePercent7d !== null && chain.uptimePercent7d >= 95
-                            ? "text-yellow-400"
-                            : "text-red-400"
-                        }
-                      >
-                        {formatUptime(chain.uptimePercent7d)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex justify-center">
-                        <SourceIndicator
-                          primaryUp={chain.primarySourceStatus === "up"}
-                          secondaryUp={chain.secondarySourceStatus === "up"}
-                          tertiaryUp={chain.tertiarySourceStatus === "up"}
-                          primaryName={SOURCE_NAMES[chain.chainId]?.primary}
-                          secondaryName={SOURCE_NAMES[chain.chainId]?.secondary}
-                          tertiaryName={SOURCE_NAMES[chain.chainId]?.tertiary}
-                        />
-                      </div>
-                    </td>
+          <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-800 text-left">
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm">Chain</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm">Status</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">Block</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">Last Block</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">24h</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">7d</th>
+                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-center">Sources</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {chains.map((chain) => (
+                    <tr
+                      key={chain.chainId}
+                      className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                    >
+                      <td className="px-6 py-5">
+                        <Link
+                          href={`/chain/${chain.chainId}`}
+                          className="font-medium text-white hover:text-blue-400 transition-colors text-base"
+                        >
+                          {chain.name}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-5">
+                        <StatusIndicator status={chain.status} size="sm" showLabel />
+                      </td>
+                      <td className="px-6 py-5 text-right font-mono text-gray-300 text-sm">
+                        {formatBlockNumber(chain.latestBlockNumber)}
+                      </td>
+                      <td className="px-6 py-5 text-right text-gray-400 text-sm">
+                        {formatTimeSince(chain.timeSinceLastBlock)} ago
+                      </td>
+                      <td className="px-6 py-5 text-right text-sm">
+                        <span
+                          className={
+                            chain.uptimePercent24h !== null && chain.uptimePercent24h >= 99
+                              ? "text-green-400"
+                              : chain.uptimePercent24h !== null && chain.uptimePercent24h >= 95
+                              ? "text-yellow-400"
+                              : "text-red-400"
+                          }
+                        >
+                          {formatUptime(chain.uptimePercent24h)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right text-sm">
+                        <span
+                          className={
+                            chain.uptimePercent7d !== null && chain.uptimePercent7d >= 99
+                              ? "text-green-400"
+                              : chain.uptimePercent7d !== null && chain.uptimePercent7d >= 95
+                              ? "text-yellow-400"
+                              : "text-red-400"
+                          }
+                        >
+                          {formatUptime(chain.uptimePercent7d)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex justify-center">
+                          <SourceIndicator
+                            primaryUp={chain.primarySourceStatus === "up"}
+                            secondaryUp={chain.secondarySourceStatus === "up"}
+                            tertiaryUp={chain.tertiarySourceStatus === "up"}
+                            primaryName={SOURCE_NAMES[chain.chainId]?.primary}
+                            secondaryName={SOURCE_NAMES[chain.chainId]?.secondary}
+                            tertiaryName={SOURCE_NAMES[chain.chainId]?.tertiary}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-8 text-center text-xs text-gray-600">
-          Data refreshes every 10 seconds. Dual-source verification.
+        <div className="mt-12 text-center text-sm text-gray-600">
+          Data refreshes every 10 seconds • Triple-source verification
         </div>
       </div>
     </div>
