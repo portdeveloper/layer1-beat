@@ -5,9 +5,12 @@ const TERTIARY_RPC = "https://solana-rpc.publicnode.com";
 
 export class SolanaAdapter implements ChainAdapter {
   chainId = "solana";
+  primarySourceName = "Solana RPC";
+  secondarySourceName = "Helius/Ankr";
+  tertiarySourceName = "PublicNode";
 
   async fetchPrimary(): Promise<SourceResult> {
-    return this.fetchFromRpc(SOLANA_RPC, "primary");
+    return this.fetchFromRpc(SOLANA_RPC, "primary", this.primarySourceName);
   }
 
   async fetchSecondary(): Promise<SourceResult> {
@@ -15,16 +18,17 @@ export class SolanaAdapter implements ChainAdapter {
     const rpcUrl = apiKey
       ? `https://mainnet.helius-rpc.com/?api-key=${apiKey}`
       : "https://rpc.ankr.com/solana";
-    return this.fetchFromRpc(rpcUrl, "secondary");
+    return this.fetchFromRpc(rpcUrl, "secondary", this.secondarySourceName);
   }
 
   async fetchTertiary(): Promise<SourceResult> {
-    return this.fetchFromRpc(TERTIARY_RPC, "tertiary");
+    return this.fetchFromRpc(TERTIARY_RPC, "tertiary", this.tertiarySourceName);
   }
 
   private async fetchFromRpc(
     rpcUrl: string,
-    source: "primary" | "secondary" | "tertiary"
+    source: "primary" | "secondary" | "tertiary",
+    sourceName: string
   ): Promise<SourceResult> {
     const start = Date.now();
     try {
@@ -74,6 +78,7 @@ export class SolanaAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -81,6 +86,7 @@ export class SolanaAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     }

@@ -5,6 +5,14 @@ import { SolanaAdapter } from "./adapters/solana";
 import { BnbAdapter } from "./adapters/bnb";
 import { AvalancheAdapter } from "./adapters/avalanche";
 import { MonadAdapter } from "./adapters/monad";
+import { PolygonAdapter } from "./adapters/polygon";
+import { TronAdapter } from "./adapters/tron";
+import { PolkadotAdapter } from "./adapters/polkadot";
+import { SuiAdapter } from "./adapters/sui";
+import { AptosAdapter } from "./adapters/aptos";
+import { CardanoAdapter } from "./adapters/cardano";
+import { NearAdapter } from "./adapters/near";
+import { TonAdapter } from "./adapters/ton";
 
 export const CHAIN_CONFIGS: ChainConfig[] = [
   {
@@ -45,6 +53,54 @@ export const CHAIN_CONFIGS: ChainConfig[] = [
     expectedBlockTime: 1,
     haltThreshold: 60,
   },
+  {
+    id: "polygon",
+    name: "Polygon",
+    expectedBlockTime: 2,
+    haltThreshold: 30,
+  },
+  {
+    id: "tron",
+    name: "Tron",
+    expectedBlockTime: 3,
+    haltThreshold: 45,
+  },
+  {
+    id: "polkadot",
+    name: "Polkadot",
+    expectedBlockTime: 6,
+    haltThreshold: 90,
+  },
+  {
+    id: "sui",
+    name: "Sui",
+    expectedBlockTime: 3,
+    haltThreshold: 45,
+  },
+  {
+    id: "aptos",
+    name: "Aptos",
+    expectedBlockTime: 4,
+    haltThreshold: 60,
+  },
+  {
+    id: "cardano",
+    name: "Cardano",
+    expectedBlockTime: 20,
+    haltThreshold: 300,
+  },
+  {
+    id: "near",
+    name: "NEAR Protocol",
+    expectedBlockTime: 1,
+    haltThreshold: 15,
+  },
+  {
+    id: "ton",
+    name: "TON",
+    expectedBlockTime: 5,
+    haltThreshold: 75,
+  },
 ];
 
 export function getChainConfig(chainId: string): ChainConfig | undefined {
@@ -65,6 +121,22 @@ export function getChainAdapter(chainId: string): ChainAdapter | undefined {
       return new AvalancheAdapter();
     case "monad":
       return new MonadAdapter();
+    case "polygon":
+      return new PolygonAdapter();
+    case "tron":
+      return new TronAdapter();
+    case "polkadot":
+      return new PolkadotAdapter();
+    case "sui":
+      return new SuiAdapter();
+    case "aptos":
+      return new AptosAdapter();
+    case "cardano":
+      return new CardanoAdapter();
+    case "near":
+      return new NearAdapter();
+    case "ton":
+      return new TonAdapter();
     default:
       return undefined;
   }

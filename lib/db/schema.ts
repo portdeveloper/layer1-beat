@@ -46,6 +46,9 @@ export const chainStatus = sqliteTable("chain_status", {
   primarySourceStatus: text("primary_source_status"), // "up", "down"
   secondarySourceStatus: text("secondary_source_status"), // "up", "down"
   tertiarySourceStatus: text("tertiary_source_status"), // "up", "down"
+  primarySourceName: text("primary_source_name"),
+  secondarySourceName: text("secondary_source_name"),
+  tertiarySourceName: text("tertiary_source_name"),
   uptimePercent24h: real("uptime_percent_24h"),
   uptimePercent7d: real("uptime_percent_7d"),
   uptimePercent30d: real("uptime_percent_30d"),

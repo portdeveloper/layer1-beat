@@ -6,6 +6,9 @@ const BLOCKCHAIN_INFO_API = "https://blockchain.info";
 
 export class BitcoinAdapter implements ChainAdapter {
   chainId = "bitcoin";
+  primarySourceName = "Blockstream";
+  secondarySourceName = "Mempool";
+  tertiarySourceName = "Blockchain.info";
 
   async fetchPrimary(): Promise<SourceResult> {
     return this.fetchFromBlockstream();
@@ -45,6 +48,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source: "primary",
+        sourceName: this.primarySourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -52,6 +56,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source: "primary",
+        sourceName: this.primarySourceName,
         latencyMs: Date.now() - start,
       };
     }
@@ -83,6 +88,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source: "secondary",
+        sourceName: this.secondarySourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -90,6 +96,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source: "secondary",
+        sourceName: this.secondarySourceName,
         latencyMs: Date.now() - start,
       };
     }
@@ -110,6 +117,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source: "tertiary",
+        sourceName: this.tertiarySourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -117,6 +125,7 @@ export class BitcoinAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source: "tertiary",
+        sourceName: this.tertiarySourceName,
         latencyMs: Date.now() - start,
       };
     }

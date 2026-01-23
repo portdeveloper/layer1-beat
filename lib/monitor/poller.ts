@@ -19,6 +19,11 @@ export async function pollAllChains(): Promise<PollResult[]> {
         adapter.fetchTertiary(),
       ]);
 
+      // Ensure source names are set
+      if (!primary.sourceName) primary.sourceName = adapter.primarySourceName;
+      if (!secondary.sourceName) secondary.sourceName = adapter.secondarySourceName;
+      if (!tertiary.sourceName) tertiary.sourceName = adapter.tertiarySourceName;
+
       const detection = crossValidateResults(adapter.chainId, primary, secondary, tertiary);
 
       return {
@@ -151,6 +156,9 @@ export async function updateDatabaseWithResults(
         primarySourceStatus: result.primary.success ? "up" : "down",
         secondarySourceStatus: result.secondary.success ? "up" : "down",
         tertiarySourceStatus: result.tertiary.success ? "up" : "down",
+        primarySourceName: result.primary.sourceName ?? null,
+        secondarySourceName: result.secondary.sourceName ?? null,
+        tertiarySourceName: result.tertiary.sourceName ?? null,
         uptimePercent24h: uptime24h,
         uptimePercent7d: uptime7d,
         uptimePercent30d: uptime30d,
@@ -166,6 +174,9 @@ export async function updateDatabaseWithResults(
           primarySourceStatus: result.primary.success ? "up" : "down",
           secondarySourceStatus: result.secondary.success ? "up" : "down",
           tertiarySourceStatus: result.tertiary.success ? "up" : "down",
+          primarySourceName: result.primary.sourceName ?? null,
+          secondarySourceName: result.secondary.sourceName ?? null,
+          tertiarySourceName: result.tertiary.sourceName ?? null,
           uptimePercent24h: uptime24h,
           uptimePercent7d: uptime7d,
           uptimePercent30d: uptime30d,

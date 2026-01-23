@@ -102,6 +102,9 @@ export default function ChainDetailPage({
                 primaryUp={chain.primarySourceStatus === "up"}
                 secondaryUp={chain.secondarySourceStatus === "up"}
                 tertiaryUp={chain.tertiarySourceStatus === "up"}
+                primaryName={chain.primarySourceName}
+                secondaryName={chain.secondarySourceName}
+                tertiaryName={chain.tertiarySourceName}
               />
             </div>
             <div className="text-sm text-gray-500 mt-1">Data Sources</div>

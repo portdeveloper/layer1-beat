@@ -6,22 +6,26 @@ const TERTIARY_RPC_URL = "https://rpc2.monad.xyz";
 
 export class MonadAdapter implements ChainAdapter {
   chainId = "monad";
+  primarySourceName = "Monad RPC";
+  secondarySourceName = "Monad RPC1";
+  tertiarySourceName = "Monad RPC2";
 
   async fetchPrimary(): Promise<SourceResult> {
-    return this.fetchFromRpc(RPC_URL, "primary");
+    return this.fetchFromRpc(RPC_URL, "primary", this.primarySourceName);
   }
 
   async fetchSecondary(): Promise<SourceResult> {
-    return this.fetchFromRpc(SECONDARY_RPC_URL, "secondary");
+    return this.fetchFromRpc(SECONDARY_RPC_URL, "secondary", this.secondarySourceName);
   }
 
   async fetchTertiary(): Promise<SourceResult> {
-    return this.fetchFromRpc(TERTIARY_RPC_URL, "tertiary");
+    return this.fetchFromRpc(TERTIARY_RPC_URL, "tertiary", this.tertiarySourceName);
   }
 
   private async fetchFromRpc(
     rpcUrl: string,
-    source: "primary" | "secondary" | "tertiary"
+    source: "primary" | "secondary" | "tertiary",
+    sourceName: string
   ): Promise<SourceResult> {
     const start = Date.now();
     try {
@@ -77,6 +81,7 @@ export class MonadAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -84,6 +89,7 @@ export class MonadAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     }

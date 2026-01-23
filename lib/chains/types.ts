@@ -16,11 +16,15 @@ export interface SourceResult {
   data?: BlockData;
   error?: string;
   source: "primary" | "secondary" | "tertiary";
+  sourceName?: string; // Human-readable source name (e.g., "LlamaRPC", "Etherscan")
   latencyMs?: number;
 }
 
 export interface ChainAdapter {
   chainId: string;
+  primarySourceName: string;
+  secondarySourceName: string;
+  tertiarySourceName: string;
   fetchPrimary(): Promise<SourceResult>;
   fetchSecondary(): Promise<SourceResult>;
   fetchTertiary(): Promise<SourceResult>;
@@ -44,6 +48,9 @@ export interface ChainStatusInfo {
   primarySourceStatus: "up" | "down";
   secondarySourceStatus: "up" | "down";
   tertiarySourceStatus: "up" | "down";
+  primarySourceName?: string;
+  secondarySourceName?: string;
+  tertiarySourceName?: string;
   uptimePercent24h: number | null;
   uptimePercent7d: number | null;
   uptimePercent30d: number | null;

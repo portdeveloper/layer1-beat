@@ -6,9 +6,12 @@ const TERTIARY_RPC_URL = "https://avalanche-c-chain-rpc.publicnode.com";
 
 export class AvalancheAdapter implements ChainAdapter {
   chainId = "avalanche";
+  primarySourceName = "Avalanche API";
+  secondarySourceName = "Snowtrace";
+  tertiarySourceName = "PublicNode";
 
   async fetchPrimary(): Promise<SourceResult> {
-    return this.fetchFromRpc(RPC_URL, "primary");
+    return this.fetchFromRpc(RPC_URL, "primary", this.primarySourceName);
   }
 
   async fetchSecondary(): Promise<SourceResult> {
@@ -50,6 +53,7 @@ export class AvalancheAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source: "secondary",
+        sourceName: this.secondarySourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -57,18 +61,20 @@ export class AvalancheAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source: "secondary",
+        sourceName: this.secondarySourceName,
         latencyMs: Date.now() - start,
       };
     }
   }
 
   async fetchTertiary(): Promise<SourceResult> {
-    return this.fetchFromRpc(TERTIARY_RPC_URL, "tertiary");
+    return this.fetchFromRpc(TERTIARY_RPC_URL, "tertiary", this.tertiarySourceName);
   }
 
   private async fetchFromRpc(
     rpcUrl: string,
-    source: "primary" | "secondary" | "tertiary"
+    source: "primary" | "secondary" | "tertiary",
+    sourceName: string
   ): Promise<SourceResult> {
     const start = Date.now();
     try {
@@ -112,6 +118,7 @@ export class AvalancheAdapter implements ChainAdapter {
         success: true,
         data: { blockNumber, blockTimestamp },
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     } catch (error) {
@@ -119,6 +126,7 @@ export class AvalancheAdapter implements ChainAdapter {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
         source,
+        sourceName,
         latencyMs: Date.now() - start,
       };
     }

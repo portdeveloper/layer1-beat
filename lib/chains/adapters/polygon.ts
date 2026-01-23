@@ -1,14 +1,14 @@
 import { ChainAdapter, SourceResult } from "../types";
 
-const RPC_URL = "https://bsc-dataseed1.binance.org";
-const SECONDARY_RPC_URL = "https://bsc-dataseed2.binance.org";
-const TERTIARY_RPC_URL = "https://bsc-dataseed3.binance.org";
+const RPC_URL = "https://polygon-rpc.com";
+const SECONDARY_RPC_URL = "https://polygon-bor-rpc.publicnode.com";
+const TERTIARY_RPC_URL = "https://1rpc.io/matic";
 
-export class BnbAdapter implements ChainAdapter {
-  chainId = "bnb";
-  primarySourceName = "Binance DS1";
-  secondarySourceName = "Binance DS2";
-  tertiarySourceName = "Binance DS3";
+export class PolygonAdapter implements ChainAdapter {
+  chainId = "polygon";
+  primarySourceName = "Polygon RPC";
+  secondarySourceName = "PublicNode";
+  tertiarySourceName = "1RPC";
 
   async fetchPrimary(): Promise<SourceResult> {
     return this.fetchFromRpc(RPC_URL, "primary", this.primarySourceName);
@@ -41,7 +41,7 @@ export class BnbAdapter implements ChainAdapter {
       });
 
       if (!blockNumRes.ok) {
-        throw new Error(`BNB RPC request failed: ${blockNumRes.status}`);
+        throw new Error(`RPC request failed: ${blockNumRes.status}`);
       }
 
       const blockNumData = await blockNumRes.json();
@@ -65,7 +65,7 @@ export class BnbAdapter implements ChainAdapter {
       });
 
       if (!blockRes.ok) {
-        throw new Error(`BNB RPC request failed: ${blockRes.status}`);
+        throw new Error(`RPC request failed: ${blockRes.status}`);
       }
 
       const blockData = await blockRes.json();

@@ -23,15 +23,6 @@ function formatUptime(percent: number | null): string {
   return `${percent.toFixed(2)}%`;
 }
 
-const SOURCE_NAMES: Record<string, { primary: string; secondary: string; tertiary: string }> = {
-  ethereum: { primary: "Llama RPC", secondary: "Etherscan", tertiary: "Alchemy" },
-  bitcoin: { primary: "Blockstream", secondary: "Mempool.space", tertiary: "Blockchain.com" },
-  solana: { primary: "Solana RPC", secondary: "Helius", tertiary: "PublicNode" },
-  bnb: { primary: "Binance RPC", secondary: "Binance RPC 2", tertiary: "BSCScan" },
-  avalanche: { primary: "Avalanche RPC", secondary: "Snowtrace", tertiary: "Alchemy" },
-  monad: { primary: "QuickNode", secondary: "Alchemy", tertiary: "Infura" },
-};
-
 export default function Dashboard() {
   const { chains, timestamp, isLoading, isError } = useChainStatuses();
   const [isPolling, setIsPolling] = useState(false);
@@ -174,9 +165,9 @@ export default function Dashboard() {
                             primaryUp={chain.primarySourceStatus === "up"}
                             secondaryUp={chain.secondarySourceStatus === "up"}
                             tertiaryUp={chain.tertiarySourceStatus === "up"}
-                            primaryName={SOURCE_NAMES[chain.chainId]?.primary}
-                            secondaryName={SOURCE_NAMES[chain.chainId]?.secondary}
-                            tertiaryName={SOURCE_NAMES[chain.chainId]?.tertiary}
+                            primaryName={chain.primarySourceName}
+                            secondaryName={chain.secondarySourceName}
+                            tertiaryName={chain.tertiarySourceName}
                           />
                         </div>
                       </td>
