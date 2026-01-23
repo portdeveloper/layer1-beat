@@ -62,6 +62,12 @@ export default function Dashboard() {
           <p className="text-gray-400 text-base sm:text-lg mb-6 leading-relaxed">
             Real-time uptime monitoring for Layer 1 blockchains
           </p>
+          <Link
+            href="/methodology"
+            className="text-sm text-gray-400 hover:text-white transition-colors mb-6 inline-block"
+          >
+            Learn about our monitoring methodology →
+          </Link>
           <div className="flex flex-wrap items-center gap-4 sm:gap-5 text-sm sm:text-base">
             <span className="text-green-400 font-medium">{healthyCount} healthy</span>
             {issueCount > 0 && (

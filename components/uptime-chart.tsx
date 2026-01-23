@@ -60,7 +60,7 @@ export function UptimeChart({ haltEvents, periodDays = 30 }: UptimeChartProps) {
         if (event.severity === "halted") {
           status = "halted";
           break; // Halted is highest priority, stop checking
-        } else if (event.severity === "slow" && status !== "halted") {
+        } else if (event.severity === "slow") {
           status = "slow";
         }
       }
