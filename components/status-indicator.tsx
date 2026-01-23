@@ -89,16 +89,20 @@ function SourceBadge({
   number,
   isUp,
   name,
+  inactive = false,
 }: {
   number: number;
   isUp: boolean;
   name?: string;
+  inactive?: boolean;
 }) {
   return (
     <div className="relative group/badge">
       <span
         className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold cursor-default ${
-          isUp
+          inactive
+            ? "bg-gray-500/10 text-gray-500 border border-gray-500/20"
+            : isUp
             ? "bg-green-500/20 text-green-400 border border-green-500/30"
             : "bg-red-500/20 text-red-400 border border-red-500/30"
         }`}
@@ -107,8 +111,8 @@ function SourceBadge({
       </span>
       {/* Individual tooltip */}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-xs whitespace-nowrap opacity-0 invisible group-hover/badge:opacity-100 group-hover/badge:visible transition-all z-10 shadow-lg">
-        <span className={isUp ? "text-green-400" : "text-red-400"}>
-          {name || `Source ${number}`}
+        <span className={inactive ? "text-gray-500" : isUp ? "text-green-400" : "text-red-400"}>
+          {name || (inactive ? "Coming soon" : `Source ${number}`)}
         </span>
         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-700" />
       </div>
@@ -136,6 +140,8 @@ export function SourceIndicator({
       <SourceBadge number={1} isUp={primaryUp} name={primaryName} />
       <SourceBadge number={2} isUp={secondaryUp} name={secondaryName} />
       <SourceBadge number={3} isUp={tertiaryUp} name={tertiaryName} />
+      <SourceBadge number={4} isUp={false} inactive={true} />
+      <SourceBadge number={5} isUp={false} inactive={true} />
     </div>
   );
 }

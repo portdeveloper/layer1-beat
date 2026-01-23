@@ -183,7 +183,7 @@ export default function Dashboard() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-sm text-gray-600">
-          Data refreshes every minute • Triple-source verification
+          Data refreshes every minute • Multi-source verification (expanding to 5 sources)
         </div>
       </div>
     </div>

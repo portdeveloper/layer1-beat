@@ -51,12 +51,14 @@ export default function MethodologyPage() {
           <h2 className="text-3xl font-semibold mb-4">Data Collection Strategy</h2>
           <div className="text-gray-400 leading-relaxed space-y-4">
             <p>
-              Every <strong className="text-white">minute</strong>, L1Beat polls all monitored chains simultaneously. For each chain, we fetch the latest block data from three independent sources in parallel:
+              Every <strong className="text-white">minute</strong>, L1Beat polls all monitored chains simultaneously. For each chain, we currently fetch the latest block data from three independent sources in parallel, with plans to expand to five sources for increased reliability:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li><strong className="text-white">Primary RPC</strong>: Direct RPC endpoint specific to the chain</li>
               <li><strong className="text-white">Secondary Block Explorer</strong>: Public block explorer API (e.g., Etherscan, Blockchain.com)</li>
               <li><strong className="text-white">Tertiary API</strong>: Alternative data provider or secondary RPC</li>
+              <li><strong className="text-gray-500">Quaternary Source</strong>: Coming soon</li>
+              <li><strong className="text-gray-500">Quinary Source</strong>: Coming soon</li>
             </ul>
             <p>
               Using three sources provides:
