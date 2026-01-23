@@ -86,118 +86,40 @@ export function crossValidateResults(
     current.blockNumber > best.blockNumber ? current : best
   );
 
-  // Calculate status from each available source
-  const statuses = sources
-    .filter((s) => s.up && s.result.data)
-    .map((s) => {
-      const timeSinceLastBlock = now - s.result.data!.blockTimestamp;
-      return determineStatusFromBlockTime(
-        timeSinceLastBlock,
-        config.expectedBlockTime
-      );
-    });
-
-  // Only 1 source up -> degraded or worse
-  if (upCount === 1) {
-    const status = statuses[0];
-    return {
-      status: status === "healthy" ? "degraded" : status,
-      blockData: mostRecentBlock,
-      primaryUp,
-      secondaryUp,
-      tertiaryUp,
-    };
-  }
-
-  // 2 sources up -> check consensus
-  if (upCount === 2) {
-    const [status1, status2] = statuses;
-
-    // If both agree
-    if (status1 === status2) {
-      // Mark as degraded if healthy (since we're missing one source)
-      const finalStatus = status1 === "healthy" ? "degraded" : status1;
-      return {
-        status: finalStatus,
-        blockData: mostRecentBlock,
-        primaryUp,
-        secondaryUp,
-        tertiaryUp,
-      };
-    }
-
-    // Sources disagree - trust the source with most recent data
-    // If one source has stale data, it might incorrectly report "halted"
-    // Use the status from whichever source has the higher block number
-    const source1Block = sources.find((s) => s.up)?.result.data?.blockNumber || 0;
-    const source2Block = sources.filter((s) => s.up)[1]?.result.data?.blockNumber || 0;
-
-    const finalStatus = source1Block >= source2Block ? status1 : status2;
-
-    return {
-      status: finalStatus,
-      blockData: mostRecentBlock,
-      primaryUp,
-      secondaryUp,
-      tertiaryUp,
-    };
-  }
-
-  // All 3 sources up - use consensus
-  const [status1, status2, status3] = statuses;
-
-  // All agree
-  if (status1 === status2 && status2 === status3) {
-    return {
-      status: status1,
-      blockData: mostRecentBlock,
-      primaryUp: true,
-      secondaryUp: true,
-      tertiaryUp: true,
-    };
-  }
-
-  // Find majority consensus or use most pessimistic
-  const statusCounts = new Map<ChainStatusType, number>();
-  statuses.forEach((status) => {
-    statusCounts.set(status, (statusCounts.get(status) || 0) + 1);
-  });
-
-  // Check if any status has majority (2 or more)
-  let majorityStatus: ChainStatusType | null = null;
-  for (const [status, count] of statusCounts.entries()) {
-    if (count >= 2) {
-      majorityStatus = status;
-      break;
-    }
-  }
-
-  if (majorityStatus) {
-    return {
-      status: majorityStatus,
-      blockData: mostRecentBlock,
-      primaryUp: true,
-      secondaryUp: true,
-      tertiaryUp: true,
-    };
-  }
-
-  // No consensus - use most pessimistic
-  const statusPriority: ChainStatusType[] = [
-    "halted",
-    "slow",
-    "degraded",
-    "healthy",
-  ];
-
-  const finalStatus = statuses.reduce((mostPessimistic, current) =>
-    statusPriority.indexOf(current) < statusPriority.indexOf(mostPessimistic)
-      ? current
-      : mostPessimistic
+  // CRITICAL: Calculate status based on the MOST RECENT block only
+  // If ANY source has recent data, the chain is up (not halted)
+  // Only consider the chain halted if the newest block is too old
+  const timeSinceLastBlock = now - mostRecentBlock.blockTimestamp;
+  const chainStatus = determineStatusFromBlockTime(
+    timeSinceLastBlock,
+    config.expectedBlockTime
   );
 
+  // Only 1 source up -> mark as degraded if healthy, otherwise use actual status
+  if (upCount === 1) {
+    return {
+      status: chainStatus === "healthy" ? "degraded" : chainStatus,
+      blockData: mostRecentBlock,
+      primaryUp,
+      secondaryUp,
+      tertiaryUp,
+    };
+  }
+
+  // 2 sources up -> mark as degraded if healthy, otherwise use actual status
+  if (upCount === 2) {
+    return {
+      status: chainStatus === "healthy" ? "degraded" : chainStatus,
+      blockData: mostRecentBlock,
+      primaryUp,
+      secondaryUp,
+      tertiaryUp,
+    };
+  }
+
+  // All 3 sources up -> use actual chain status
   return {
-    status: finalStatus,
+    status: chainStatus,
     blockData: mostRecentBlock,
     primaryUp: true,
     secondaryUp: true,

@@ -173,47 +173,63 @@ export default function MethodologyPage() {
               After fetching data from all three sources, we apply consensus logic to determine the final status. This prevents false positives from temporary API failures.
             </p>
 
-            <h3 className="text-xl font-semibold mb-3 text-white pt-2">Source Agreement Scenarios</h3>
+            <h3 className="text-xl font-semibold mb-3 text-white pt-2">Critical Rule: Chain Status Based on Most Recent Block</h3>
 
-            <div className="space-y-4">
+            <p className="mb-4">
+              <strong className="text-white">A chain is only considered halted when ALL available sources report stale data.</strong> The status determination follows this logic:
+            </p>
+
+            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-3 text-sm">
               <div>
-                <div className="font-semibold text-white mb-1">3 sources up:</div>
-                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                  <li>If all agree: Use consensus status</li>
-                  <li>If 2 agree: Use majority status</li>
-                  <li>If all disagree: Use most pessimistic status (safety mechanism)</li>
-                </ul>
+                <div className="font-semibold text-green-400 mb-1">Step 1: Find Most Recent Block</div>
+                <p>Select the block with the highest block number from all successful sources</p>
               </div>
 
               <div>
-                <div className="font-semibold text-white mb-1">2 sources up:</div>
-                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                  <li>If both agree: Use consensus (mark degraded if healthy)</li>
-                  <li>If disagree: Trust source with highest block number</li>
-                </ul>
+                <div className="font-semibold text-green-400 mb-1">Step 2: Calculate Time Since Block</div>
+                <p>Calculate time elapsed since that most recent block's timestamp</p>
               </div>
 
               <div>
-                <div className="font-semibold text-white mb-1">1 source up:</div>
-                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                  <li>Trust it but mark as degraded if healthy</li>
-                </ul>
+                <div className="font-semibold text-green-400 mb-1">Step 3: Determine Status</div>
+                <p>Apply the status algorithm to that single most recent block</p>
               </div>
 
               <div>
-                <div className="font-semibold text-white mb-1">0 sources up:</div>
-                <ul className="list-disc list-inside space-y-1 ml-4 text-sm">
-                  <li>Mark as stale (cannot determine chain status)</li>
+                <div className="font-semibold text-green-400 mb-1">Step 4: Apply Degradation Rules</div>
+                <ul className="list-disc list-inside ml-4 space-y-1">
+                  <li>If 1-2 sources down and status is healthy → mark as "degraded"</li>
+                  <li>Otherwise → use the calculated status directly</li>
                 </ul>
               </div>
             </div>
 
-            <p className="pt-2">
-              <strong className="text-white">Pessimistic Bias:</strong> When sources disagree and no majority exists, we choose the most pessimistic status to err on the side of caution. The priority order is: halted &gt; slow &gt; degraded &gt; healthy.
-            </p>
+            <h3 className="text-xl font-semibold mb-3 text-white pt-4">Source Availability Scenarios</h3>
 
-            <p>
-              <strong className="text-white">Highest Block Number Rule:</strong> When sources report different block numbers, we trust the highest one, as it represents the most recent known state of the chain. This prevents stale data from one source causing false halt detections.
+            <div className="space-y-3">
+              <div>
+                <div className="font-semibold text-white mb-1">All 3 sources up:</div>
+                <p className="text-sm ml-4">Use most recent block, report actual chain status</p>
+              </div>
+
+              <div>
+                <div className="font-semibold text-white mb-1">2 sources up:</div>
+                <p className="text-sm ml-4">Use most recent block, mark as "degraded" if healthy (reduced redundancy)</p>
+              </div>
+
+              <div>
+                <div className="font-semibold text-white mb-1">1 source up:</div>
+                <p className="text-sm ml-4">Use that source's block, mark as "degraded" if healthy (no redundancy)</p>
+              </div>
+
+              <div>
+                <div className="font-semibold text-white mb-1">0 sources up:</div>
+                <p className="text-sm ml-4">Mark as "stale" (cannot determine chain status)</p>
+              </div>
+            </div>
+
+            <p className="pt-4">
+              <strong className="text-white">Key Insight:</strong> If any single source successfully fetches a recent block, the chain is operating. Stale data from other sources does NOT trigger false halts. Only when the newest block across all sources is too old (or all sources fail) do we report degraded/halted/stale status.
             </p>
           </div>
         </section>
