@@ -38,7 +38,7 @@ export default function MethodologyPage() {
               Architecture Flow:
             </p>
             <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 font-mono text-sm text-gray-300">
-              Polling (10s interval) → Fetch from 3 sources → Cross-validate → Store → Display
+              Polling (1-minute interval) → Fetch from 3 sources → Cross-validate → Store → Display
             </div>
             <p>
               This approach ensures that transient issues with individual RPC nodes or APIs do not trigger false alarms, while genuine network problems are detected across multiple independent sources.
