@@ -95,7 +95,7 @@ export function crossValidateResults(
     config.expectedBlockTime
   );
 
-  // Only 1 source up -> mark as degraded if healthy, otherwise use actual status
+  // Only 1 source up -> mark as degraded if healthy (reduced redundancy)
   if (upCount === 1) {
     return {
       status: chainStatus === "healthy" ? "degraded" : chainStatus,
@@ -106,24 +106,13 @@ export function crossValidateResults(
     };
   }
 
-  // 2 sources up -> mark as degraded if healthy, otherwise use actual status
-  if (upCount === 2) {
-    return {
-      status: chainStatus === "healthy" ? "degraded" : chainStatus,
-      blockData: mostRecentBlock,
-      primaryUp,
-      secondaryUp,
-      tertiaryUp,
-    };
-  }
-
-  // All 3 sources up -> use actual chain status
+  // 2 or 3 sources up -> sufficient redundancy, use actual chain status
   return {
     status: chainStatus,
     blockData: mostRecentBlock,
-    primaryUp: true,
-    secondaryUp: true,
-    tertiaryUp: true,
+    primaryUp,
+    secondaryUp,
+    tertiaryUp,
   };
 }
 
