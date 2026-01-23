@@ -33,7 +33,7 @@ export function useChainStatuses() {
     "/api/chains",
     fetcher,
     {
-      refreshInterval: 10000, // Refresh every 10 seconds
+      refreshInterval: 60000, // Refresh every minute
       revalidateOnFocus: true,
     }
   );
@@ -52,7 +52,7 @@ export function useChainDetail(chainId: string) {
     chainId ? `/api/chain/${chainId}` : null,
     fetcher,
     {
-      refreshInterval: 10000,
+      refreshInterval: 60000, // Refresh every minute
       revalidateOnFocus: true,
     }
   );

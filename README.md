@@ -25,7 +25,7 @@ Blockchain infrastructure teams and validators need reliable, real-time monitori
 ### 📊 Real-Time Monitoring
 - Monitors 6 major L1 blockchains: Ethereum, Bitcoin, Solana, BNB Chain, Avalanche, Monad
 - Sub-second API response times
-- Auto-refresh every 10 seconds
+- Auto-refresh every minute
 - Live block production visualization
 
 ### 📈 Historical Analytics
@@ -143,7 +143,7 @@ Triggers manual polling cycle (requires `CRON_SECRET`).
 - **6 Layer 1 Blockchains** tracked
 - **~$2 trillion** in combined market cap
 - **18 independent data sources** (3 per chain)
-- **10-second** refresh rate
+- **1-minute** refresh rate
 
 ### Performance
 - **<100ms** API response time (P95)
@@ -260,7 +260,7 @@ CREATE TABLE haltEvents (
 3. Add environment variables
 4. Deploy!
 
-Vercel Cron will automatically poll every 10 seconds.
+Configure an external cron service (like cron-job.org) to poll `/api/internal/poll` every minute with the `CRON_SECRET` authorization header.
 
 ### Custom Deployment
 

@@ -110,7 +110,6 @@ export default function Dashboard() {
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm">Chain</th>
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm">Status</th>
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">Block</th>
-                    <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">Last Block</th>
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">24h</th>
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm text-right">7d</th>
                     <th className="px-6 py-4 font-medium text-gray-400 text-sm text-center">Sources</th>
@@ -135,9 +134,6 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-5 text-right font-mono text-gray-300 text-sm">
                         {formatBlockNumber(chain.latestBlockNumber)}
-                      </td>
-                      <td className="px-6 py-5 text-right text-gray-400 text-sm">
-                        {formatTimeSince(chain.timeSinceLastBlock)} ago
                       </td>
                       <td className="px-6 py-5 text-right text-sm">
                         <span
@@ -187,7 +183,7 @@ export default function Dashboard() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-sm text-gray-600">
-          Data refreshes every 10 seconds • Triple-source verification
+          Data refreshes every minute • Triple-source verification
         </div>
       </div>
     </div>

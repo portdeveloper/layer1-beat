@@ -51,7 +51,7 @@ export default function MethodologyPage() {
           <h2 className="text-3xl font-semibold mb-4">Data Collection Strategy</h2>
           <div className="text-gray-400 leading-relaxed space-y-4">
             <p>
-              Every <strong className="text-white">10 seconds</strong>, L1Beat polls all monitored chains simultaneously. For each chain, we fetch the latest block data from three independent sources in parallel:
+              Every <strong className="text-white">minute</strong>, L1Beat polls all monitored chains simultaneously. For each chain, we fetch the latest block data from three independent sources in parallel:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li><strong className="text-white">Primary RPC</strong>: Direct RPC endpoint specific to the chain</li>
@@ -329,7 +329,7 @@ export default function MethodologyPage() {
                 <strong className="text-white">Monitors liveness only:</strong> Does not track transaction finality, network security, or consensus health beyond block production
               </li>
               <li>
-                <strong className="text-white">10-second granularity:</strong> Incidents shorter than the polling interval may be missed or imprecisely timed
+                <strong className="text-white">1-minute granularity:</strong> Incidents shorter than the polling interval may be missed or imprecisely timed
               </li>
               <li>
                 <strong className="text-white">Block timestamps:</strong> Relies on block timestamps which can have variance and are set by validators/miners
@@ -356,8 +356,8 @@ export default function MethodologyPage() {
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li><strong className="text-white">Frontend:</strong> Next.js 15, React, Tailwind CSS v4</li>
               <li><strong className="text-white">Database:</strong> Turso SQLite (distributed edge database)</li>
-              <li><strong className="text-white">Polling:</strong> Vercel Cron or external service triggering <code className="bg-gray-800 px-1.5 py-0.5 rounded text-sm">/api/internal/poll</code> every 10 seconds</li>
-              <li><strong className="text-white">Real-time Updates:</strong> SWR (stale-while-revalidate) with 10-second auto-refresh</li>
+              <li><strong className="text-white">Polling:</strong> External cron service (cron-job.org) triggering <code className="bg-gray-800 px-1.5 py-0.5 rounded text-sm">/api/internal/poll</code> every minute</li>
+              <li><strong className="text-white">Real-time Updates:</strong> SWR (stale-while-revalidate) with 1-minute auto-refresh</li>
             </ul>
 
             <h3 className="text-xl font-semibold mb-3 text-white pt-4">Data Flow</h3>
@@ -365,7 +365,7 @@ export default function MethodologyPage() {
               Frontend (SWR) → API routes → Database → Response
             </div>
             <p className="text-sm">
-              The frontend uses SWR for efficient data fetching with automatic revalidation. API routes query the Turso database and return cached results when possible. The polling service writes block snapshots, halt events, and chain status updates to the database every 10 seconds.
+              The frontend uses SWR for efficient data fetching with automatic revalidation. API routes query the Turso database and return cached results when possible. The polling service writes block snapshots, halt events, and chain status updates to the database every minute.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 text-white pt-4">Storage Schema</h3>

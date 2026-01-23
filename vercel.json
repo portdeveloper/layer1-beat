@@ -2,7 +2,8 @@
   "crons": [
     {
       "path": "/api/internal/poll",
-      "schedule": "0 0 * * *"
+      "schedule": "0 0 * * *",
+      "comment": "Daily fallback - actual polling done via external cron-job.org service (every minute)"
     }
   ]
 }
