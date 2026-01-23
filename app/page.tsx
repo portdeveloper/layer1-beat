@@ -58,7 +58,7 @@ export default function Dashboard() {
       <div className="max-w-[1400px] mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
         {/* Header */}
         <div className="mb-12 sm:mb-16">
-          <h1 className="text-5xl sm:text-6xl font-bold mb-4 tracking-tight leading-tight">L1Beat</h1>
+          <h1 className="text-5xl sm:text-6xl font-bold mb-4 tracking-tight leading-tight">❤️ L1Beat</h1>
           <p className="text-gray-400 text-base sm:text-lg mb-6 leading-relaxed">
             Real-time uptime monitoring for Layer 1 blockchains
           </p>
